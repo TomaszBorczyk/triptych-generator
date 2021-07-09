@@ -1,6 +1,7 @@
 from PIL import ImageEnhance, Image
 
 DEFAULT_SHARPEN_FACTOR = 1.5
+RGB_IMAGE_MODE = 'RGB'
 
 
 def sharpen(image, factor):
@@ -20,4 +21,4 @@ def enhancedResize(image, dimensions, sharpenFactor=DEFAULT_SHARPEN_FACTOR ):
 
 
 def createEmptyImage(dimensions, color):
-    return Image.new('RGB', dimensions, color)
+    return Image.new(RGB_IMAGE_MODE, dimensions, color)

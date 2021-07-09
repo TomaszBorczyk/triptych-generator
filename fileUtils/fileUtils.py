@@ -1,5 +1,9 @@
 import os
 
+DEFAULT_EXTENSION = 'jpeg'
+DEFAULT_NAME = ''
+EXTENSION_SEPARATOR = '.'
+
 
 def processFolderContents(path, handler):
     sourceElements = os.listdir(path)
@@ -17,5 +21,5 @@ def buildPath(folderPath, filename):
     return os.path.join(folderPath, filename)
 
 
-def generateFilename(counter, name='', extension='jpg'):
-    return name + str(counter) + '.' + extension
+def generateFilename(counter, name=DEFAULT_NAME, extension=DEFAULT_EXTENSION):
+    return name + str(counter) + EXTENSION_SEPARATOR + extension
