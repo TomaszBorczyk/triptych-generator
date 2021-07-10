@@ -36,7 +36,7 @@ class Counter:
         return self.counter
 
 
-def fullTriptychFlow(folderPath, counter):
+def fullTriptychFlow(folderPath: str, counter: Counter) -> None:
     imagePaths = getFolderFilesPaths(folderPath)
     images = [enhancedResize(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS) for path in imagePaths]
     triptych = createTriptych(
