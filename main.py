@@ -1,6 +1,8 @@
 import argparse
+import warnings
 
-from file.utils import getFolderFilesPaths, processFolderContents, generateFilename, buildPath, createDirectory
+from file.utils import processFolderContents, generateFilename, buildPath, createDirectory, \
+    getImagesPathsInDirectory
 from image.processing import enhancedResize
 from image.utils import openImage, saveImage
 from triptychGeneration import createTriptych
@@ -51,23 +53,30 @@ def fullTriptychFlow(
         TRIPTYCH_ELEMENT_MARGIN_SIDES = (unoccupiedTriptychWidth) // 4
         TRIPTYCH_SPACING = TRIPTYCH_ELEMENT_MARGIN_SIDES
 
+    imagePaths = getImagesPathsInDirectory(folderPath)
+    imageCount = len(imagePaths)
 
-    imagePaths = getFolderFilesPaths(folderPath)
-    images = [enhancedResize(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS) for path in imagePaths]
-    triptych = createTriptych(
-        images,
-        OUTPUT_DIMENSIONS,
-        backgroundColor,
-        TRIPTYCH_ELEMENT_MARGIN_TOP,
-        TRIPTYCH_ELEMENT_MARGIN_SIDES,
-        elementWidth,
-        TRIPTYCH_SPACING
-    )
+    # TODO: handle cases with 4, 2 and 1 image in directory
+    # TODO: when above happens, rename "triptych" to something else (project name can stay)
+    # TODO: handle horizontal images and mix of vertical + horizontal
+    if imageCount is 3:
+        images = [enhancedResize(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS) for path in imagePaths]
+        triptych = createTriptych(
+            images,
+            OUTPUT_DIMENSIONS,
+            backgroundColor,
+            TRIPTYCH_ELEMENT_MARGIN_TOP,
+            TRIPTYCH_ELEMENT_MARGIN_SIDES,
+            elementWidth,
+            TRIPTYCH_SPACING
+        )
 
-    outputFilename = generateFilename(counter.getValue())
-    outputPath = buildPath(outputFolder, outputFilename)
+        outputFilename = generateFilename(counter.getValue())
+        outputPath = buildPath(outputFolder, outputFilename)
 
-    saveImage(triptych, outputPath)
+        saveImage(triptych, outputPath)
+    else:
+        warnings.warn(f'Invalid number of files in directory - expected 3, got {imageCount} instead')
 
 
 def parseArguments():
@@ -78,6 +87,8 @@ def parseArguments():
     parser.add_argument('--elementWidth', help='Width of a single image within triptych')
     parser.add_argument('--backgroundColor', help='Background color of triptych')
     parser.add_argument('--spacing', help='Spacing in px between images')
+    # TODO add option for frame and frame color
+    # TODO with more and more options, consider moving to json/yaml file-based config?
     return parser.parse_args()
 
 
