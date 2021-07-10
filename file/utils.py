@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Callable
 
 DEFAULT_EXTENSION = 'jpeg'
@@ -24,3 +25,7 @@ def buildPath(folderPath: str, filename: str):
 
 def generateFilename(counter: int, name: str=DEFAULT_NAME, extension: str=DEFAULT_EXTENSION):
     return name + str(counter) + EXTENSION_SEPARATOR + extension
+
+
+def createDirectory(path: str):
+    Path(path).mkdir(parents=False, exist_ok=True)
