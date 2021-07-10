@@ -1,9 +1,8 @@
 import os
 
-from fileUtils.fileUtils import getFolderFilesPaths, processFolderContents, generateFilename, \
-    buildPath
-from imageUtils.imageProcessing import enhancedResize
-from imageUtils.utils import openImage, saveImage
+from file.utils import getFolderFilesPaths, processFolderContents, generateFilename, buildPath
+from image.processing import enhancedResize
+from image.utils import openImage, saveImage
 from triptychGeneration import createTriptych
 
 MAIN_FOLDER = "C:\\Users\\Tom\\Desktop\\triptychs"

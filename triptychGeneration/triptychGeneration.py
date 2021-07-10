@@ -1,4 +1,4 @@
-from imageUtils.imageProcessing import createEmptyImage
+from image.utils import createEmptyImage
 
 
 def createTriptych(images, dimensions, backgroundColor, marginTop, marginSides, imageElementWidth):
