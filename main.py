@@ -3,10 +3,9 @@ import warnings
 
 from file.utils import processFolderContents, generateFilename, buildPath, createDirectory, \
     getImagesPathsInDirectory
-from image.processing import enhancedResize
+from image.processing import enhancedResize, addBorder
 from image.utils import openImage, saveImage
 from triptychGeneration import createTriptych
-
 
 # INPUTS
 OUTPUT_WIDTH = 1920
@@ -14,7 +13,6 @@ OUTPUT_HEIGHT = 1080
 OUTPUT_DIMENSIONS = (OUTPUT_WIDTH, OUTPUT_HEIGHT)
 TRIPTYCH_ELEMENT_WIDTH = 600
 BACKGROUND_COLOR = (255, 255, 255)
-
 
 # CONSTS
 TRIPTYCH_ELEMENT_HEIGHT_BY_WIDTH = 3 / 2
@@ -29,13 +27,22 @@ class Counter:
         return self.counter
 
 
+def processTriptychImageElement(image, targetDimensions, innerBorderSize, borderSize):
+    resized = enhancedResize(image, targetDimensions)
+    withInnerBorder = addBorder(resized, innerBorderSize, '#000')
+    withOuterBorder = addBorder(withInnerBorder, borderSize, '#fff')
+    return withOuterBorder
+
+
 def fullTriptychFlow(
-    folderPath: str,
-    counter: Counter,
-    outputFolder: str,
-    elementWidth: int,
-    backgroundColor: str,
-    spacing: int
+        folderPath: str,
+        counter: Counter,
+        outputFolder: str,
+        elementWidth: int,
+        backgroundColor: str,
+        spacing: int,
+        innerBorderSize: int,
+        borderSize: int
 ) -> None:
     # TODO: extract to separate function
     TRIPTYCH_ELEMENT_HEIGHT = int(elementWidth * TRIPTYCH_ELEMENT_HEIGHT_BY_WIDTH)
@@ -60,7 +67,7 @@ def fullTriptychFlow(
     # TODO: when above happens, rename "triptych" to something else (project name can stay)
     # TODO: handle horizontal images and mix of vertical + horizontal
     if imageCount is 3:
-        images = [enhancedResize(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS) for path in imagePaths]
+        images = [processTriptychImageElement(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS, innerBorderSize, borderSize) for path in imagePaths]
         triptych = createTriptych(
             images,
             OUTPUT_DIMENSIONS,
@@ -71,12 +78,13 @@ def fullTriptychFlow(
             TRIPTYCH_SPACING
         )
 
-        outputFilename = generateFilename(counter.getValue())
+        # outputFilename = generateFilename(counter.getValue())
+        outputFilename = generateFilename(folderPath.split('\\')[-1])
         outputPath = buildPath(outputFolder, outputFilename)
 
         saveImage(triptych, outputPath)
     else:
-        warnings.warn(f'Invalid number of files in directory - expected 3, got {imageCount} instead')
+        warnings.warn(f'Invalid number of files in directory {folderPath} - expected 3, got {imageCount} instead')
 
 
 def parseArguments():
@@ -87,6 +95,8 @@ def parseArguments():
     parser.add_argument('--elementWidth', help='Width of a single image within triptych')
     parser.add_argument('--backgroundColor', help='Background color of triptych')
     parser.add_argument('--spacing', help='Spacing in px between images')
+    parser.add_argument('--borderSize', help='Border size in px around each image')
+    parser.add_argument('--innerBorderSize', help='Inner border size in px around each image')
     # TODO add option for frame and frame color
     # TODO with more and more options, consider moving to json/yaml file-based config?
     return parser.parse_args()
@@ -100,9 +110,12 @@ if __name__ == '__main__':
     elementWidth = int(args.elementWidth) if args.elementWidth else TRIPTYCH_ELEMENT_WIDTH
     backgroundColor = args.backgroundColor if args.backgroundColor else BACKGROUND_COLOR
     spacing = int(args.spacing) if args.spacing else None
+    borderSize = int(args.borderSize) if args.borderSize else 0
+    innerBorderSize = int(args.innerBorderSize) if args.innerBorderSize else 0
 
     createDirectory(outputFolder)
 
     imageCounter = Counter()
-    generateTriptych = lambda folder: fullTriptychFlow(folder, imageCounter, outputFolder, elementWidth, backgroundColor, spacing)
+    generateTriptych = lambda folder: fullTriptychFlow(folder, imageCounter, outputFolder, elementWidth,
+                                                       backgroundColor, spacing, innerBorderSize, borderSize)
     processFolderContents(sourceFolder, generateTriptych)

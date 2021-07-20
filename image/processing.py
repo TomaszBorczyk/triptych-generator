@@ -1,4 +1,4 @@
-from PIL import ImageEnhance, Image
+from PIL import ImageEnhance, Image, ImageOps
 
 DEFAULT_SHARPEN_FACTOR = 1.5
 
@@ -17,3 +17,8 @@ def enhancedResize(image, dimensions: (int, int), sharpenFactor: float=DEFAULT_S
     out = resize(image, dimensions)
     sharpened = sharpen(out, sharpenFactor)
     return sharpened
+
+
+def addBorder(image, borderSize: int, borderColor: str = '#ffffff'):
+    img_with_border = ImageOps.expand(image, border=borderSize, fill=borderColor)
+    return img_with_border

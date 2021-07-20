@@ -10,6 +10,7 @@ EXTENSION_SEPARATOR = '.'
 def getImagesPathsInDirectory(directoryPath: str) -> List[str]:
     filenames = getFilenamesFromDirectory(directoryPath)
     imageFilenames = [filename for filename in filenames if isImageFile(filename)]
+    imageFilenames = sorted(imageFilenames)
 
     return getPathsFromFilenames(directoryPath, imageFilenames)
 
@@ -21,6 +22,7 @@ def isImageFile(filename: str) -> bool:
 
 def processFolderContents(path: str, handler: Callable[[str], None]):
     sourceElements = os.listdir(path)
+    sourceElements = sorted(sourceElements)
 
     for element in sourceElements:
         handler(os.path.join(path, element))
@@ -43,7 +45,7 @@ def buildPath(folderPath: str, filename: str):
     return os.path.join(folderPath, filename)
 
 
-def generateFilename(counter: int, name: str=DEFAULT_NAME, extension: str=DEFAULT_EXTENSION):
+def generateFilename(counter, name: str=DEFAULT_NAME, extension: str=DEFAULT_EXTENSION):
     return name + str(counter) + EXTENSION_SEPARATOR + extension
 
 
