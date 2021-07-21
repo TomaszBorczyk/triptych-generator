@@ -47,7 +47,7 @@ def fullTriptychFlow(
     # TODO: extract to separate function
     TRIPTYCH_ELEMENT_HEIGHT = int(elementWidth * TRIPTYCH_ELEMENT_HEIGHT_BY_WIDTH)
     TRIPTYCH_ELEMENT_DIMENSIONS = (elementWidth, TRIPTYCH_ELEMENT_HEIGHT)
-    TRIPTYCH_ELEMENT_MARGIN_TOP = (OUTPUT_HEIGHT - TRIPTYCH_ELEMENT_HEIGHT) // 2
+    TRIPTYCH_ELEMENT_MARGIN_TOP = (OUTPUT_HEIGHT - TRIPTYCH_ELEMENT_HEIGHT - 2 * borderSize) // 2
 
     # TODO: add dimension checks
     unoccupiedTriptychWidth = OUTPUT_WIDTH - 3 * elementWidth - 2 * (spacing if spacing is not None else 0)
@@ -67,6 +67,42 @@ def fullTriptychFlow(
     # TODO: when above happens, rename "triptych" to something else (project name can stay)
     # TODO: handle horizontal images and mix of vertical + horizontal
     if imageCount is 3:
+        images = [processTriptychImageElement(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS, innerBorderSize, borderSize) for path in imagePaths]
+        triptych = createTriptych(
+            images,
+            OUTPUT_DIMENSIONS,
+            backgroundColor,
+            TRIPTYCH_ELEMENT_MARGIN_TOP,
+            TRIPTYCH_ELEMENT_MARGIN_SIDES,
+            elementWidth,
+            TRIPTYCH_SPACING
+        )
+
+        # outputFilename = generateFilename(counter.getValue())
+        outputFilename = generateFilename(folderPath.split('\\')[-1])
+        outputPath = buildPath(outputFolder, outputFilename)
+
+        saveImage(triptych, outputPath)
+    elif imageCount is 1:
+        images = [openImage(path) for path in imagePaths]
+        image = images[0]
+        w, h = image.size
+
+        if (w/h > 2): # large panorama
+            TRIPTYCH_ELEMENT_WIDTH = 1850
+            landscapeImageHeight = int((h / w) * TRIPTYCH_ELEMENT_WIDTH)
+        else:
+            landscapeImageHeight = 1000
+            TRIPTYCH_ELEMENT_WIDTH = int(landscapeImageHeight * TRIPTYCH_ELEMENT_HEIGHT_BY_WIDTH)
+
+        # landscapeImageHeight = 1000
+        # TRIPTYCH_ELEMENT_WIDTH = int(landscapeImageHeight * TRIPTYCH_ELEMENT_HEIGHT_BY_WIDTH)
+        TRIPTYCH_ELEMENT_DIMENSIONS = (TRIPTYCH_ELEMENT_WIDTH, landscapeImageHeight)
+        TRIPTYCH_ELEMENT_MARGIN_TOP = (OUTPUT_HEIGHT - landscapeImageHeight - 2 * borderSize) // 2
+
+        unoccupiedTriptychWidth = OUTPUT_WIDTH - TRIPTYCH_ELEMENT_WIDTH - 2 * borderSize
+        TRIPTYCH_ELEMENT_MARGIN_SIDES = unoccupiedTriptychWidth // 2
+
         images = [processTriptychImageElement(openImage(path), TRIPTYCH_ELEMENT_DIMENSIONS, innerBorderSize, borderSize) for path in imagePaths]
         triptych = createTriptych(
             images,
